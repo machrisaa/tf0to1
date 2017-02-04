@@ -6,9 +6,9 @@ This is an enhancement of the original upgrader [/tensorflow/tools/compatibility
 
 ##Requirement
 [RedBaron](https://redbaron.readthedocs.io/en/latest/) is needed in order to use this updater.
-`
+```
 pip install redbaron
-`
+```
 
 ##Usage (Copied from [/tensorflow/tools/compatibility](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/tools/compatibility))
 This script can be run on a single Python file:
@@ -24,6 +24,10 @@ it on a directory tree:
 tf_upgrade.py --intree coolcode -outtree coolcode-upgraded
 ```
 
+>Example: To convert the sample testdata, call:
+```
+tf_upgrade.py --intree ./testdata --outtree ./testdata-v1
+```
 
 ##Enhancement
 Based on the discussion in [Issue 7214](https://github.com/tensorflow/tensorflow/issues/7214), the original `ty_upgrade.py` use `ast` to parse the source code and then perform conversion. Because of the simplifed structure of `ast` (Abstract Syntax Tree), the comments and formatting are removed in the Abstract Syntax Trees. This increase the difficulty of making the upgrader expecially for cases in [Issue 7214](https://github.com/tensorflow/tensorflow/issues/7214) and conversion of `tf.reverse` or `tf.image.resize_images` that require to change the structure of arguments.
