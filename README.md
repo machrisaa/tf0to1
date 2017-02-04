@@ -1,5 +1,6 @@
 # tf0to1
-A project to upgrade Tensorflow from v0 to v1.0.0 enhanced from [/tensorflow/tools/compatibility](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/tools/compatibility)
+A project to upgrade Tensorflow source code from v0 to v1.0.0 enhanced from [/tensorflow/tools/compatibility](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/tools/compatibility).
+> See all the breaking changes in [RELEASE.md](https://github.com/tensorflow/tensorflow/blob/v1.0.0-rc1/RELEASE.md)
 
 ##Source
 This is an enhancement of the original upgrader [/tensorflow/tools/compatibility](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/tools/compatibility). The `tf_upgrade.py` is directly modified from [/tensorflow/tools/compatibility/tf_upgrade.py](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/tools/compatibility/tf_upgrade.py) which kept all the rules, the commnad line parameters and most of the reporting format.
