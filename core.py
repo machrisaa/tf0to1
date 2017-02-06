@@ -222,27 +222,28 @@ class Tensorflow0To1Transformer(RedBaronNodeTransformer):
 
     # noinspection PyPep8Naming
     def visit_CallNode(self, call_node):
+        method_nodes = self.finder.get_method_name_nodes(call_node)
+        method_name = self.finder.get_method_name(method_nodes)
+
         # first handle rename of calls
-        self.transform_names(call_node)
+        self.transform_names(call_node, method_name, method_nodes)
 
         # then handle change of keywords in the method signature
-        self.transform_keywords(call_node)
+        self.transform_keywords(call_node, method_name)
 
         # then handle reordering or arguments
-        self.transform_reorders(call_node)
+        self.transform_reorders(call_node, method_name)
 
         # finally handle others
-        self.transform_others(call_node)
+        self.transform_others(call_node, method_name)
 
         return call_node
 
-    def transform_names(self, call_node):
+    def transform_names(self, call_node, method_name, method_nodes):
         """
         Rename the method names
         """
 
-        method_nodes = self.finder.get_method_name_nodes(call_node)
-        method_name = self.finder.get_method_name(method_nodes)
         if method_name in self.function_renames:
             new_name = self.function_renames[method_name]
 
@@ -272,12 +273,11 @@ class Tensorflow0To1Transformer(RedBaronNodeTransformer):
                 new_code = method_name + call_node.dumps()
                 self.add(comment, line, old_code, new_code)
 
-    def transform_keywords(self, call_node):
+    def transform_keywords(self, call_node, method_name):
         """
         update the keywords
         """
 
-        method_name = self.finder.get_method_name(call_node)
         if method_name in self.function_keyword_renames:
             keywords_map = self.function_keyword_renames[method_name]
 
@@ -301,12 +301,11 @@ class Tensorflow0To1Transformer(RedBaronNodeTransformer):
                 new_code = method_name + call_node.dumps()
                 self.add(comment, line, old_code, new_code)
 
-    def transform_reorders(self, call_node):
+    def transform_reorders(self, call_node, method_name):
         """
         add keywords to the call in order to fix the re-ordering
         """
 
-        method_name = self.finder.get_method_name(call_node)
         if method_name in self.function_reorders:
             args_names = self.function_reorders[method_name]
 
@@ -328,11 +327,10 @@ class Tensorflow0To1Transformer(RedBaronNodeTransformer):
             new_code = method_name + call_node.dumps()
             self.add(comment, line, old_code, new_code)
 
-    def transform_others(self, call_node):
+    def transform_others(self, call_node, method_name):
         """
         Individual transformation based on the function handler
         """
-        method_name = self.finder.get_method_name(call_node)
         if method_name in self.function_handle:
             handler = self.function_handle[method_name]
             handler(call_node)
@@ -409,8 +407,7 @@ class Tensorflow0To1Transformer(RedBaronNodeTransformer):
                 h_arg = arg
             elif not arg.target and i == 2:
                 w_arg = arg
-
-            # add the remaining arguments with keywords:
+                # add the remaining arguments with keywords:
             elif h_arg and w_arg and not arg.target and i == 3:
                 arg.target = 'method'
             elif h_arg and w_arg and not arg.target and i == 4:
@@ -425,11 +422,10 @@ class Tensorflow0To1Transformer(RedBaronNodeTransformer):
         new_code = method_name + call_node.dumps()
         self.add(comment, line, old_code, new_code)
 
-    @staticmethod
-    def get_node_line(call_node):
+    def get_node_line(self, call_node):
         # #very slow:
         # return call_node.absolute_bounding_box.top_left.line
-        return -1
+        return self.current_line
 
     def add(self, comment, line, old, new, error=None):
         """Add a new change that is needed.
@@ -463,11 +459,8 @@ class Tensorflow0To1Transformer(RedBaronNodeTransformer):
         change_report = ""
         for line, reports in self._report.items():
             for r in reports:
-                # if line > 0:
-                #     change_report += "%r Line %d\n" % (self._filename, line)
-                # else:
-                #     change_report += "%r \n" % (self._filename)
-                # change_report += "-" * 80 + "\n\n"
+                change_report += "\t\t%r Line %d\n" % (self._filename, line)
+                change_report += "\t\t" + ("-" * 80) + "\n"
                 change_report += r
 
         return change_report

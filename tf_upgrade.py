@@ -67,17 +67,22 @@ class TensorFlowCodeUpgrader(object):
 
         print('Converting ' + in_filename)
 
-        transformer = Tensorflow0To1Transformer(in_filename, in_file)
-        transformer.transform()
-        report = transformer.get_change_report()
-        process_errors = transformer.get_errors()
-        transformer.save(out_file)
+        try:
+            transformer = Tensorflow0To1Transformer(in_filename, in_file)
+            transformer.transform()
+            report = transformer.get_change_report()
+            process_errors = transformer.get_errors()
+            transformer.save(out_file)
 
-        if report:
-            for r in report:
-                report_text += r
+            if report:
+                for r in report:
+                    report_text += r
 
-        report_text += "\n"
+            report_text += "\n"
+        except Exception as e:
+            # print(str(e)) #show all error at once when finished
+            process_errors = ['Error found in ' + in_filename + ":\n" + str(e)]
+
         return 1, report_text, process_errors
 
     # pylint: enable=broad-except
